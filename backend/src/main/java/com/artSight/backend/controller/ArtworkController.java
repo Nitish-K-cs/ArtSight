@@ -3,8 +3,10 @@ package com.artSight.backend.controller;
 import com.artSight.backend.dto.RecognitionResponse;
 import com.artSight.backend.entity.Artwork;
 import com.artSight.backend.repository.ArtworkRepository;
+import com.artSight.backend.service.InteractionTrackingService;
 import com.artSight.backend.service.RecognitionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,8 +24,14 @@ public class ArtworkController {
     @Autowired
     private ArtworkRepository artworkRepository;
 
+    @Autowired
+    private InteractionTrackingService trackingService;
+
     @PostMapping("/recognize")
-    public Map<String, Object> recognize(@RequestParam("file") MultipartFile file) throws Exception {
+    public Map<String, Object> recognize(
+            @RequestParam("file") MultipartFile file,
+            Authentication auth) throws Exception {
+
         RecognitionResponse recognition = recognitionService.recognize(file);
 
         Map<String, Object> response = new HashMap<>();
@@ -43,6 +51,12 @@ public class ArtworkController {
         }
 
         Artwork artwork = artworkOpt.get();
+
+        // Phase 3: record scan interaction for recommendations
+        if (auth != null) {
+            trackingService.recordScan(auth.getName(), artwork);
+        }
+
         response.put("matched", true);
         response.put("score", recognition.getScore());
         response.put("artwork", artwork);
