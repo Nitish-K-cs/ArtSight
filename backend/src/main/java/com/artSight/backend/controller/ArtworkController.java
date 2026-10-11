@@ -6,6 +6,7 @@ import com.artSight.backend.repository.ArtworkRepository;
 import com.artSight.backend.service.InteractionTrackingService;
 import com.artSight.backend.service.RecognitionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,13 +28,21 @@ public class ArtworkController {
     @Autowired
     private InteractionTrackingService trackingService;
 
+    /** Get a single artwork by ID — used by the frontend detail page. */
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getArtwork(@PathVariable Long id) {
+        return artworkRepository.findById(id)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /** Recognize an artwork from a photo upload. */
     @PostMapping("/recognize")
     public Map<String, Object> recognize(
             @RequestParam("file") MultipartFile file,
             Authentication auth) throws Exception {
 
         RecognitionResponse recognition = recognitionService.recognize(file);
-
         Map<String, Object> response = new HashMap<>();
 
         if (recognition == null || !recognition.isMatched()) {

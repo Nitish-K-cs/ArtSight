@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "user_artwork_interactions", indexes = {
-        @Index(name = "idx_interaction_user", columnList = "user_id"),
+        @Index(name = "idx_interaction_user", columnList = "user_email"),
         @Index(name = "idx_interaction_artwork", columnList = "artwork_id")
 })
 @Data
