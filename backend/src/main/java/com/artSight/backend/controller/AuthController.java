@@ -4,6 +4,7 @@ import com.artSight.backend.dto.OtpRequest;
 import com.artSight.backend.dto.OtpVerifyRequest;
 import com.artSight.backend.entity.User;
 import com.artSight.backend.repository.UserRepository;
+import com.artSight.backend.service.EmailService;
 import com.artSight.backend.service.JwtService;
 import com.artSight.backend.service.OtpService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,13 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     @PostMapping("/send-otp")
     public String sendOtp(@RequestBody OtpRequest request) {
         String otp = otpService.generateOtp(request.getEmail());
-        System.out.println("OTP for " + request.getEmail() + ": " + otp);
+        emailService.sendOtpEmail(request.getEmail().trim(), otp);
         return "OTP sent";
     }
 
