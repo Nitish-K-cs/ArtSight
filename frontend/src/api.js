@@ -14,11 +14,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Redirect to login on 401
+// Redirect to login on 401 — but NOT for /auth/** endpoints (e.g. wrong password returns 401)
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    const url = err.config?.url ?? '';
+    if (err.response?.status === 401 && !url.startsWith('/auth/')) {
       localStorage.removeItem('artsight_token');
       window.location.href = '/auth';
     }

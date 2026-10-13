@@ -101,3 +101,54 @@
   text-align: center;
   display: block;
 }
+
+/* ── Mode tabs (Log in / Sign up) ──────────────────────────────────────── */
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--black-border);
+  margin-bottom: 28px;
+}
+.auth-tab {
+  flex: 1;
+  padding: 12px 8px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--white-mute);
+  border-bottom: 2px solid transparent;
+  transition: var(--transition);
+  letter-spacing: 0.02em;
+}
+.auth-tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+.auth-tab:hover:not(.active) { color: var(--white-dim); }
+
+/* ── "Email me a code instead" / "Use my password instead" toggle ─────── */
+.auth-method-toggle {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 4px 0;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--gold-dim);
+  text-align: center;
+  letter-spacing: 0.02em;
+  transition: var(--transition);
+}
+.auth-method-toggle:hover { color: var(--gold); }
+
+/* ── Resend row (countdown + "different email" link) ─────────────────── */
+.auth-resend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  gap: 8px;
+}
+.auth-resend-row .btn-ghost {
+  padding: 8px 14px;
+  font-size: 0.82rem;
+}

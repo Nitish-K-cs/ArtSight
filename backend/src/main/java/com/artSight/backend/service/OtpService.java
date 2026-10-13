@@ -17,10 +17,6 @@ public class OtpService {
     private static final Duration RESEND_COOLDOWN = Duration.ofSeconds(60);
     private static final int MAX_ATTEMPTS = 5;
 
-    private static final String OTP_PREFIX = "otp:";
-    private static final String COOLDOWN_PREFIX = "otp:cooldown:";
-    private static final String ATTEMPTS_PREFIX = "otp:attempts:";
-
     private final RedisTemplate<String, String> redisTemplate;
     private final SecureRandom random = new SecureRandom();
 
@@ -28,39 +24,41 @@ public class OtpService {
         this.redisTemplate = redisTemplate;
     }
 
-    public String generateOtp(String rawEmail) {
-        String email = normalize(rawEmail);
+    private static String key(String kind, String purpose, String email) {
+        return "otp:" + kind + ":" + purpose + ":" + email;
+    }
 
-        // Atomic: only succeeds if no cooldown key exists yet
+    public String generateOtp(String email, String purpose) {
         Boolean allowed = redisTemplate.opsForValue()
-                .setIfAbsent(COOLDOWN_PREFIX + email, "1", RESEND_COOLDOWN);
+                .setIfAbsent(key("cooldown", purpose, email), "1", RESEND_COOLDOWN);
         if (!Boolean.TRUE.equals(allowed)) {
             throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
-                    "Please wait before requesting another code");
+                    "Please wait a minute before requesting another code");
         }
 
         String otp = String.valueOf(random.nextInt(900000) + 100000);
-        redisTemplate.opsForValue().set(OTP_PREFIX + email, otp, OTP_EXPIRY);
-        redisTemplate.delete(ATTEMPTS_PREFIX + email); // fresh code, fresh attempt counter
+        redisTemplate.opsForValue().set(key("code", purpose, email), otp, OTP_EXPIRY);
+        redisTemplate.delete(key("attempts", purpose, email));
         return otp;
     }
 
-    public boolean verifyOtp(String rawEmail, String otp) {
+    public boolean verifyOtp(String email, String purpose, String otp) {
         if (otp == null)
             return false;
-        String email = normalize(rawEmail);
 
-        String stored = redisTemplate.opsForValue().get(OTP_PREFIX + email);
+        String codeKey = key("code", purpose, email);
+        String attemptsKey = key("attempts", purpose, email);
+
+        String stored = redisTemplate.opsForValue().get(codeKey);
         if (stored == null)
             return false;
 
-        String attemptsKey = ATTEMPTS_PREFIX + email;
         Long attempts = redisTemplate.opsForValue().increment(attemptsKey);
         if (attempts != null && attempts == 1) {
             redisTemplate.expire(attemptsKey, OTP_EXPIRY);
         }
         if (attempts != null && attempts > MAX_ATTEMPTS) {
-            redisTemplate.delete(OTP_PREFIX + email);
+            redisTemplate.delete(codeKey);
             redisTemplate.delete(attemptsKey);
             return false;
         }
@@ -70,13 +68,9 @@ public class OtpService {
                 otp.trim().getBytes(StandardCharsets.UTF_8));
 
         if (match) {
-            redisTemplate.delete(OTP_PREFIX + email);
+            redisTemplate.delete(codeKey);
             redisTemplate.delete(attemptsKey);
         }
         return match;
-    }
-
-    private String normalize(String email) {
-        return email.trim().toLowerCase();
     }
 }

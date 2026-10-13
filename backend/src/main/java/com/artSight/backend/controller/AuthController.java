@@ -1,65 +1,58 @@
 package com.artSight.backend.controller;
 
-import com.artSight.backend.dto.OtpRequest;
-import com.artSight.backend.dto.OtpVerifyRequest;
-import com.artSight.backend.entity.User;
-import com.artSight.backend.repository.UserRepository;
-import com.artSight.backend.service.EmailService;
-import com.artSight.backend.service.JwtService;
-import com.artSight.backend.service.OtpService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.artSight.backend.dto.AuthDtos.*;
+import com.artSight.backend.service.AuthService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private OtpService otpService;
+    private final AuthService authService;
 
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private EmailService emailService;
-
-    @PostMapping("/send-otp")
-    public String sendOtp(@RequestBody OtpRequest request) {
-        String otp = otpService.generateOtp(request.getEmail());
-        emailService.sendOtpEmail(request.getEmail().trim(), otp);
-        return "OTP sent";
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
-    @PostMapping("/verify-otp")
-    public Map<String, String> verifyOtp(@RequestBody OtpVerifyRequest request) {
-        boolean valid = otpService.verifyOtp(request.getEmail(), request.getOtp());
+    // --- Sign up ---
 
-        Map<String, String> response = new HashMap<>();
+    @PostMapping("/signup/send-otp")
+    public Map<String, String> signupSendOtp(@RequestBody EmailRequest req) {
+        authService.sendSignupOtp(req.email());
+        return Map.of("status", "success", "message", "OTP sent");
+    }
 
-        if (!valid) {
-            response.put("status", "error");
-            response.put("message", "Invalid or expired OTP");
-            return response;
-        }
+    @PostMapping("/signup/verify-otp")
+    public Map<String, String> signupVerifyOtp(@RequestBody VerifyOtpRequest req) {
+        String verificationToken = authService.verifySignupOtp(req.email(), req.otp());
+        return Map.of("status", "success", "verificationToken", verificationToken);
+    }
 
-        // Create user if first-time login, otherwise fetch existing
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setEmail(request.getEmail());
-                    return userRepository.save(newUser);
-                });
+    @PostMapping("/signup/set-password")
+    public Map<String, String> signupSetPassword(@RequestBody SetPasswordRequest req) {
+        String token = authService.completeSignup(req.verificationToken(), req.password());
+        return Map.of("status", "success", "token", token);
+    }
 
-        String token = jwtService.generateToken(user.getEmail());
+    // --- Login ---
 
-        response.put("status", "success");
-        response.put("token", token);
-        return response;
+    @PostMapping("/login")
+    public Map<String, String> login(@RequestBody LoginRequest req) {
+        String token = authService.loginWithPassword(req.email(), req.password());
+        return Map.of("status", "success", "token", token);
+    }
+
+    @PostMapping("/login/send-otp")
+    public Map<String, String> loginSendOtp(@RequestBody EmailRequest req) {
+        authService.sendLoginOtp(req.email());
+        return Map.of("status", "success", "message", "OTP sent");
+    }
+
+    @PostMapping("/login/verify-otp")
+    public Map<String, String> loginVerifyOtp(@RequestBody VerifyOtpRequest req) {
+        String token = authService.loginWithOtp(req.email(), req.otp());
+        return Map.of("status", "success", "token", token);
     }
 }
