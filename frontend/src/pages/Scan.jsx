@@ -59,7 +59,7 @@ export default function Scan() {
   };
 
   return (
-    <div style={{ minHeight: '100dvh' }}>
+    <div className="desktop-main" style={{ minHeight: '100dvh' }}>
       <header className="scan-header">
         <h1 className="display-md">
           <span className="gold">Scan</span> Artwork

@@ -36,7 +36,7 @@ export default function Home() {
   const displayName = email?.split('@')[0] || 'Explorer';
 
   return (
-    <div style={{ minHeight: '100dvh' }}>
+    <div className="desktop-main" style={{ minHeight: '100dvh' }}>
       {/* Header */}
       <header className="home-header">
         <div className="home-header-inner">

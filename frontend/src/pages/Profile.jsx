@@ -39,7 +39,7 @@ export default function Profile() {
   const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
-    <div style={{ minHeight: '100dvh' }}>
+    <div className="desktop-main" style={{ minHeight: '100dvh' }}>
       <main className="page profile-page">
 
         {/* Avatar + name */}

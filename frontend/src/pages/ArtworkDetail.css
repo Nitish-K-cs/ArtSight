@@ -292,3 +292,73 @@
   align-items: center;
   justify-content: center;
 }
+
+/* ── Desktop overrides ≥ 1024px ─────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  .detail-page {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: 100dvh;
+    padding-bottom: 0;
+  }
+
+  /* Hero: tall sticky left column */
+  .detail-hero {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    height: 100dvh;
+    position: sticky;
+    top: 0;
+  }
+
+  /* Tabs: sit at top of right column */
+  .detail-tabs {
+    grid-column: 2;
+    grid-row: 1;
+    max-width: none;
+    padding: 0 40px;
+    border-bottom: 1px solid var(--black-border);
+    position: sticky;
+    top: 0;
+    background: rgba(8, 8, 8, 0.95);
+    backdrop-filter: blur(16px);
+    z-index: 10;
+  }
+
+  /* Info tab content: right column, padded */
+  .detail-info {
+    grid-column: 2;
+    padding: 36px 40px;
+    max-width: none;
+    overflow-y: auto;
+  }
+  .info-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  /* Chat panel: right column, full remaining height */
+  .chat-panel {
+    grid-column: 2;
+    max-width: none;
+    height: calc(100dvh - 53px); /* 53px = tabs height */
+  }
+  .chat-messages {
+    padding: 24px 40px;
+  }
+  .chat-input-bar {
+    padding: 16px 40px;
+  }
+
+  /* Wider bubbles on big screens */
+  .bubble-content {
+    max-width: 65%;
+  }
+
+  /* Back button: absolute within hero */
+  .detail-back {
+    top: 20px;
+    left: 20px;
+  }
+}

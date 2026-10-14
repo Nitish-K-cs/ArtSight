@@ -117,3 +117,32 @@
   color: var(--white-mute);
   flex-shrink: 0;
 }
+
+/* ── Desktop overrides ≥ 1024px ─────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  .home-header {
+    max-width: 900px;
+    padding: 48px 48px 24px;
+  }
+
+  /* 3-column artwork grid */
+  .recommendations-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  /* History cards: bigger thumb, more breathing room */
+  .history-img {
+    width: 72px;
+    height: 72px;
+  }
+  .history-item {
+    padding: 16px 20px;
+  }
+
+  /* Scan FAB stays, but slightly larger on desktop */
+  .scan-fab {
+    width: 56px;
+    height: 56px;
+  }
+}

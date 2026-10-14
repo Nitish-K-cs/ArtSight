@@ -328,3 +328,107 @@ a { text-decoration: none; color: inherit; }
   color: var(--success);
   font-size: 0.875rem;
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   DESKTOP LAYOUT  ≥ 1024 px
+   Strategy: bottom-nav → left sidebar; content area = full remaining width.
+   All existing mobile rules stay untouched; only additions live here.
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (min-width: 1024px) {
+
+  /* ── Global tokens (desktop) ────────────────────────────────────────────── */
+  :root {
+    --nav-height: 0px; /* sidebar replaces bottom nav; padding recalculated below */
+  }
+
+  /* ── Main content wrapper ───────────────────────────────────────────────── */
+  /* Every page renders inside a flex child next to the sidebar. */
+  .page {
+    max-width: 900px;
+    padding: 48px 48px 48px 48px;
+    margin: 0 auto;
+  }
+  .page-full {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ── Bottom nav → Left sidebar ──────────────────────────────────────────── */
+  .bottom-nav {
+    /* Detach from bottom; become a fixed left column */
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: auto;
+    width: var(--sidebar-width);
+    height: 100dvh;
+    max-width: var(--sidebar-width);
+
+    /* Stack nav items vertically */
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 40px 20px;
+    gap: 4px;
+
+    border-top: none;
+    border-right: 1px solid var(--black-border);
+  }
+
+  /* Brand mark at top of sidebar */
+  .bottom-nav::before {
+    content: 'ArtSight';
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--gold);
+    letter-spacing: -0.01em;
+    display: block;
+    width: 100%;
+    padding: 0 12px 32px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--black-border);
+  }
+
+  /* Nav items: full-width horizontal row inside sidebar */
+  .nav-item {
+    flex-direction: row;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    gap: 12px;
+    justify-content: flex-start;
+  }
+  .nav-item span {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+  .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+  /* Active state: background highlight instead of top bar */
+  .nav-item.active {
+    background: var(--gold-glow);
+    color: var(--gold);
+  }
+  .nav-item.active::before {
+    /* remove the mobile top-bar indicator */
+    display: none;
+  }
+  .nav-item:hover:not(.active) {
+    background: rgba(245, 240, 232, 0.04);
+    color: var(--white-dim);
+  }
+
+  /* ── All pages: offset content by sidebar width ─────────────────────────── */
+  /* Every top-level page wrapper needs a left margin equal to the sidebar.   */
+  /* We target the outermost div each page renders (added via class below).   */
+  .desktop-main {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    min-width: 0;
+    min-height: 100dvh;
+  }
+}

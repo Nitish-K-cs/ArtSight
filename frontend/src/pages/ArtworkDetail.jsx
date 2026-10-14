@@ -102,7 +102,7 @@ export default function ArtworkDetail() {
   }
 
   return (
-    <div className="detail-page">
+    <div className="detail-page desktop-main">
       {/* Back + hero */}
       <div className="detail-hero">
         <button
